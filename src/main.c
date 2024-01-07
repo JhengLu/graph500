@@ -30,6 +30,8 @@
 #include <limits.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <time.h>
+
 
 int isisolated(int64_t v);
 static int compare_doubles(const void* a, const void* b) {
@@ -71,7 +73,12 @@ int main(int argc, char** argv) {
 	aml_init(&argc,&argv); //includes MPI_Init inside
 	setup_globals();
 
-	/* Parse arguments. */
+    // define this to print current time
+    time_t current_time;
+    char* c_time_string;
+
+
+    /* Parse arguments. */
 	int SCALE = 16;
 	int edgefactor = 16; /* nedges / nvertices, i.e., 2*avg. degree */
 	if (argc >= 2) SCALE = atoi(argv[1]);
@@ -290,6 +297,10 @@ int main(int argc, char** argv) {
 	double make_graph_time = make_graph_stop - make_graph_start;
 	if (rank == 0) { /* Not an official part of the results */
 		fprintf(stderr, "graph_generation:               %f s\n", make_graph_time);
+        // Print current time
+        current_time = time(NULL);
+        c_time_string = ctime(&current_time);
+        fprintf(stderr, "Current Time: %s\n", c_time_string);
 	}
 
 	/* Make user's graph data structure. */
@@ -299,6 +310,10 @@ int main(int argc, char** argv) {
 	double data_struct_time = data_struct_stop - data_struct_start;
 	if (rank == 0) { /* Not an official part of the results */
 		fprintf(stderr, "construction_time:              %f s\n", data_struct_time);
+        // Print current time
+        current_time = time(NULL);
+        c_time_string = ctime(&current_time);
+        fprintf(stderr, "Current Time: %s\n", c_time_string);
 	}
 
 	//generate non-isolated roots
@@ -367,7 +382,13 @@ int main(int argc, char** argv) {
 		for (bfs_root_idx = 0; bfs_root_idx < num_bfs_roots; ++bfs_root_idx) {
 			int64_t root = bfs_roots[bfs_root_idx];
 
-			if (rank == 0) fprintf(stderr, "Running BFS %d\n", bfs_root_idx);
+			if (rank == 0) {
+                fprintf(stderr, "Running BFS %d\n", bfs_root_idx);
+                // Print current time
+                current_time = time(NULL);
+                c_time_string = ctime(&current_time);
+                fprintf(stderr, "Current Time of Running BFS: %s\n", c_time_string);
+            }
 
 			clean_pred(&pred[0]); //user-provided function from bfs_implementation.c
 			/* Do the actual BFS. */
@@ -375,7 +396,13 @@ int main(int argc, char** argv) {
 			run_bfs(root, &pred[0]);
 			double bfs_stop = MPI_Wtime();
 			bfs_times[bfs_root_idx] = bfs_stop - bfs_start;
-			if (rank == 0) fprintf(stderr, "Time for BFS %d is %f\n", bfs_root_idx, bfs_times[bfs_root_idx]);
+			if (rank == 0) {
+                fprintf(stderr, "Time for BFS %d is %f\n", bfs_root_idx, bfs_times[bfs_root_idx]);
+                // Print current time
+                current_time = time(NULL);
+                c_time_string = ctime(&current_time);
+                fprintf(stderr, "Current Time of Time for BFS: %s\n", c_time_string);
+            }
 			int64_t edge_visit_count=0;
 			get_edge_count_for_teps(&edge_visit_count);
 			edge_counts[bfs_root_idx] = (double)edge_visit_count;
@@ -383,14 +410,26 @@ int main(int argc, char** argv) {
 
 			/* Validate result. */
 			if (!getenv("SKIP_VALIDATION")) {
-				if (rank == 0) fprintf(stderr, "Validating BFS %d\n", bfs_root_idx);
+				if (rank == 0) {
+                    fprintf(stderr, "Validating BFS %d\n", bfs_root_idx);
+                    // Print current time
+                    current_time = time(NULL);
+                    c_time_string = ctime(&current_time);
+                    fprintf(stderr, "Current Time of Validating BFS: %s\n", c_time_string);
+                }
 
 				double validate_start = MPI_Wtime();
 				int validation_passed_one = validate_result(1,&tg, nlocalverts, root, pred,shortest,&edge_visit_count);
 				double validate_stop = MPI_Wtime();
 
 				validate_times[bfs_root_idx] = validate_stop - validate_start;
-				if (rank == 0) fprintf(stderr, "Validate time for BFS %d is %f\n", bfs_root_idx, validate_times[bfs_root_idx]);
+				if (rank == 0) {
+                    fprintf(stderr, "Validate time for BFS %d is %f\n", bfs_root_idx, validate_times[bfs_root_idx]);
+                    // Print current time
+                    current_time = time(NULL);
+                    c_time_string = ctime(&current_time);
+                    fprintf(stderr, "Current Time of Validate time for BFS: %s\n", c_time_string);
+                }
 
 				if (!validation_passed_one) {
 					validation_passed = 0;
