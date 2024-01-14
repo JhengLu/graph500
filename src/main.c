@@ -475,8 +475,20 @@ int main(int argc, char** argv) {
 		int64_t edge_visit_count=0;
 		get_edge_count_for_teps(&edge_visit_count);
 		edge_counts[bfs_root_idx] = (double)edge_visit_count;
-		if (rank == 0) fprintf(stderr, "Time for SSSP %d is %f\n", bfs_root_idx, sssp_times[bfs_root_idx]);
-		if (rank == 0) fprintf(stderr, "TEPS for SSSP %d is %g\n", bfs_root_idx, edge_counts[bfs_root_idx] / sssp_times[bfs_root_idx]);
+		if (rank == 0) {
+            fprintf(stderr, "Time for SSSP %d is %f\n", bfs_root_idx, sssp_times[bfs_root_idx]);
+            // Print current time
+            current_time = time(NULL);
+            c_time_string = ctime(&current_time);
+            fprintf(stderr, "Current Time: %s\n", c_time_string);
+        }
+		if (rank == 0) {
+            fprintf(stderr, "TEPS for SSSP %d is %g\n", bfs_root_idx, edge_counts[bfs_root_idx] / sssp_times[bfs_root_idx]);
+            // Print current time
+            current_time = time(NULL);
+            c_time_string = ctime(&current_time);
+            fprintf(stderr, "Current Time: %s\n", c_time_string);
+        }
 
 		/* Validate result. */
 		if (!getenv("SKIP_VALIDATION")) {
