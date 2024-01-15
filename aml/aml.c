@@ -71,6 +71,7 @@ int pthread_setaffinity_np(pthread_t thread, size_t cpu_size,
                     (thread_policy_t)&policy, 1);
   return 0;
 }
+
 #else
 #include <malloc.h>
 #endif
@@ -364,11 +365,11 @@ SOATTR int aml_init( int *argc, char ***argv ) {
 		if ((1 << loggroup) == group_size) break;
 #endif
 	if(myproc!=PROC_FROM_GROUPLOCAL(mygroup,mylocal)) {printf("AML: Fatal: Strange group rank assignment scheme.\n");return -1;}
-	cpu_set_t cpuset;
-	CPU_ZERO(&cpuset);
+	//cpu_set_t cpuset;
+	//CPU_ZERO(&cpuset);
 
-	CPU_SET(mylocal,&cpuset); //FIXME ? would it work good enough on all architectures?
-	pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+	//CPU_SET(mylocal,&cpuset); //FIXME ? would it work good enough on all architectures?
+	//pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
 #ifdef DEBUGSTATS
 	if(myproc==0) printf ("AML: multicore, num_groups %d group_size %d\n",num_groups,group_size);
 #ifdef PROCS_PER_NODE_NOT_POWER_OF_TWO
